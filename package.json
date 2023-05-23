@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/AbidAhmedGit/Nasa_project/issues"
   },
-  "homepage": "https://github.com/AbidAhmedGit/Nasa_project#readme"
+  "homepage": "https://github.com/AbidAhmedGit/Nasa_project#readme",
+  "dependencies": {
+    "morgan": "^1.10.0"
+  }
 }
