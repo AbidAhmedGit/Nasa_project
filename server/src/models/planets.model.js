@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { parse } = require('csv-parse');
 
+const planets = require('./planets.mongo');
 const habitablePlanets = [];
 
 
@@ -26,9 +27,15 @@ function loadPlanetsData(){
             comment: '#',
             columns: true,
         }))
-        .on('data', (data)=>{
+        .on('data', async (data)=>{
             if (isHabitablePlanets(data)){
-                habitablePlanets.push(data);
+                // habitablePlanets.push(data);
+                // planets.create(data);
+                // replace create with insert + update = upsert
+                // await planets.create({
+                //     keplerName: data.kepler_name,
+                // })
+                savePlanet(data);
             }
         })
     
@@ -36,7 +43,7 @@ function loadPlanetsData(){
             console.log(error)
             reject(error)
         })
-        .on('end', ()=>{
+        .on('end', async ()=>{
             console.log();
             console.log(
                 habitablePlanets.map((planet)=>{
@@ -44,15 +51,34 @@ function loadPlanetsData(){
                     return planet['kepler_name']
                 })
             );
-            console.log(`${habitablePlanets.length} habitable planets were found!`)
+            const countPlanetsFound = (await getAllPlanets()).length;
+            console.log(`${countPlanetsFound} habitable planets found!`);
             resolve();
         });
     });
 };
 
-function getAllPlanets(){
-    return habitablePlanets
+async function getAllPlanets() {
+    // explore all the possible queries
+    return await planets.find({}, {
+      '_id': 0, '__v': 0,
+    });
 }
+
+async function savePlanet(planet) {
+    try {
+      await planets.updateOne({
+        keplerName: planet.kepler_name,
+      }, {
+        keplerName: planet.kepler_name,
+      }, {
+        upsert: true,
+      });
+    } catch(err) {
+      console.error(`Could not save planet ${err}`);
+    }
+}
+  
 
 module.exports = {
     loadPlanetsData,

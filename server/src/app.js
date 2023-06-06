@@ -21,7 +21,7 @@ app.use(express.json());
 
 // routing MW
 app.use(planetsRouter);
-app.use(launchesRouter);
+app.use('/launches', launchesRouter);
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.get('/*', (req, res)=> {
